@@ -1,0 +1,90 @@
+-debug
+-target:library
+-nowarn:0169
+-out:Temp/Assembly-CSharp.dll
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll"
+-r:Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll
+-r:Library/ScriptAssemblies/Assembly-UnityScript-firstpass.dll
+-r:Assets/Plugins/Azure/Bitrave.Azure.dll
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll"
+-define:UNITY_STANDALONE_WIN
+-define:ENABLE_MICROPHONE
+-define:ENABLE_TEXTUREID_MAP
+-define:ENABLE_AUDIO_FMOD
+-define:UNITY_STANDALONE
+-define:ENABLE_MONO
+-define:ENABLE_SPRITES
+-define:ENABLE_TERRAIN
+-define:ENABLE_GENERICS
+-define:ENABLE_SUBSTANCE
+-define:INCLUDE_WP8SUPPORT
+-define:ENABLE_MOVIES
+-define:ENABLE_WWW
+-define:ENABLE_IMAGEEFFECTS
+-define:ENABLE_WEBCAM
+-define:INCLUDE_METROSUPPORT
+-define:RENDER_SOFTWARE_CURSOR
+-define:ENABLE_NETWORK
+-define:ENABLE_PHYSICS
+-define:ENABLE_CACHING
+-define:ENABLE_CLOTH
+-define:ENABLE_2D_PHYSICS
+-define:ENABLE_SHADOWS
+-define:ENABLE_AUDIO
+-define:ENABLE_NAVMESH_CARVING
+-define:ENABLE_DUCK_TYPING
+-define:ENABLE_SINGLE_INSTANCE_BUILD_SETTING
+-define:UNITY_4_3_1
+-define:UNITY_4_3
+-define:ENABLE_PROFILER
+-define:UNITY_EDITOR
+-define:UNITY_EDITOR_WIN
+-define:UNITY_TEAM_LICENSE
+Assets/DrawGui.cs
+Assets/KinectView/Scripts/BodySourceManager.cs
+Assets/KinectView/Scripts/BodySourceView.cs
+Assets/KinectView/Scripts/ColorSourceManager.cs
+Assets/KinectView/Scripts/ColorSourceView.cs
+Assets/KinectView/Scripts/DepthSourceManager.cs
+Assets/KinectView/Scripts/DepthSourceView.cs
+Assets/KinectView/Scripts/DisableOnStart.cs
+Assets/KinectView/Scripts/InfraredSourceManager.cs
+Assets/KinectView/Scripts/InfraredSourceView.cs
+Assets/KinectView/Scripts/MultiSourceManager.cs
+Assets/Scripts/Azure/Azure.cs
+Assets/Scripts/Azure/AzureClass.cs
+Assets/Scripts/Azure/AzureTable.cs
+Assets/Scripts/Azure/Patient.cs
+Assets/Scripts/Azure/Quest.cs
+Assets/Scripts/Azure/Session.cs
+Assets/Scripts/Azure/Therapist.cs
+Assets/Scripts/Calibration/CalibrationBodyView.cs
+Assets/Scripts/Calibration/CalibrationController.cs
+Assets/Scripts/Camera/CameraController.cs
+Assets/Scripts/Kinect/BodySourceManager.cs
+Assets/Scripts/Kinect/ColorSourceManager.cs
+Assets/Scripts/Kinect/ColorSourceView.cs
+Assets/Scripts/Kinect/KinectBodyExtensions.cs
+Assets/Scripts/Kinect/KinectController.cs
+Assets/Scripts/Kinect/RightHandController.cs
+Assets/Scripts/Level01/Level01.cs
+Assets/Scripts/Levels/AirportLevel.cs
+Assets/Scripts/Levels/FlyingLevel.cs
+Assets/Scripts/Levels/Level.cs
+"Assets/Scripts/Motor Detectors/Detector.cs"
+"Assets/Scripts/Motor Detectors/FlyDetector.cs"
+"Assets/Scripts/Motor Detectors/HandWaveDetector.cs"
+"Assets/Scripts/Motor Detectors/JumpDetector.cs"
+"Assets/Scripts/Motor Sensors/FlySensor.cs"
+"Assets/Scripts/Motor Sensors/HandWaveSensor.cs"
+"Assets/Scripts/Motor Sensors/JumpSensor.cs"
+"Assets/Scripts/Motor Sensors/Sensor.cs"
+Assets/Scripts/Player/PlaneController.cs
+Assets/Scripts/Player/PlaneTakeOffController.cs
+Assets/Scripts/Player/PlayerController.cs
+Assets/Scripts/Result/ResultController.cs
+"Assets/animated skybox/skybox.cs"
+Assets/skydome/Sun.cs
+Assets/skydome/skydomeScript2.cs
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Mono\lib/mono/unity\System.Runtime.Serialization.dll"
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Mono\lib/mono/unity\System.Xml.Linq.dll"
