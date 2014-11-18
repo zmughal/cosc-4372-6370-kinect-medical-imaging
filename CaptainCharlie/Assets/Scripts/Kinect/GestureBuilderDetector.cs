@@ -5,7 +5,6 @@ using Windows.Kinect;
 public class GestureBuilderDetector : MonoBehaviour
 {
 	public GameObject Kinect;
-	public float rotationSpeed = 20.0f;
 	public GameObject objectToManipulate;
 
 	public GUIText leftDebugString;
@@ -18,28 +17,41 @@ public class GestureBuilderDetector : MonoBehaviour
 	public float xExtensionMax = 0.70f;
 	public float maxRotationSpeed = 40.0f;
 	public float minRotationSpeed = 0.0f;
-
 	private float rHExtensionFactor;
 	private float lHExtensionFactor;
 
 	// Update is called once per frame
-	void Update ()
-	{
+	void Update () {
 		HandExtensionGestureUpdate ();
 	}
 
 	/* this uses the distance from the torso to determine the factor of rotation */
 	void HandExtensionGestureUpdate() {
 		KinectController kinect = Kinect.GetComponent<KinectController>();
-		
+
+		/* where are all the joints? */
 		Vector3 rHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandRight);
 		Vector3 lHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandLeft);
 		Vector3 neckPosition = kinect.PlayerSkeleton.GetPosition(JointType.Neck);
-		
-		rHExtensionFactor = System.Math.Abs(rHPosition.x - neckPosition.x);
-		lHExtensionFactor = System.Math.Abs(lHPosition.x - neckPosition.x);
-		rightDebugString.text = rHExtensionFactor.ToString();
-		leftDebugString.text  = lHExtensionFactor.ToString();
+
+		/* how far are the joints from the body center (use neck x position as an approximation)? */
+		float rHOffsetFromBody = rHPosition.x - neckPosition.x;
+		float lHOffsetFromBody = lHPosition.x - neckPosition.x;
+
+		/* are the hands on their respective side of the body (e.g., left on the left side)? */
+		/*  [Left Hand] [Body Center] [Right Hand]
+		 * ---- 0 ---  1 ---  2 -- 3 -- 4 -- 5 -- 6 -- [+x-axis] ---->
+		 */ 
+		bool rHOnRightSide = rHOffsetFromBody > 0; /* is positive if the right hand is outstretched */
+		bool lHOnLeftSide = lHOffsetFromBody < 0; /* is negative if the left hand is outstretched */
+
+		/* calculate the offset absolute value so that it can be used for thresholding */
+		rHExtensionFactor = System.Math.Abs(rHOffsetFromBody);
+		lHExtensionFactor = System.Math.Abs(lHOffsetFromBody);
+
+		/*DEBUG: */
+		rightDebugString.text = rHOffsetFromBody.ToString();
+		leftDebugString.text  = lHOffsetFromBody.ToString();
 
 		rightHandMovingRight ();
 		leftHandMovingLeft ();
@@ -125,11 +137,21 @@ public class GestureBuilderDetector : MonoBehaviour
 		return slope * clippedExtension + intercept;
 	}
 
+	/* Rotate about the y-axis.
+	 * 
+	 * Negative values rotate to the right (from an observer on +z-axis).
+	 * 
+	 * Positive values rotate to the left (from an observer on +z-axis).
+	 */
+	void rotateYaw( float rotSpeed ) {
+		objectToManipulate.transform.Rotate(Vector3.up, Mathf.PI * Time.deltaTime * rotSpeed);
+	}
+
 	void rightHandMovingRight() {
 		/* rotate right */
 		if (! isInDeadzone (rHExtensionFactor)) {
 			float rotSpeed = calculateRotationSpeed(rHExtensionFactor);
-			objectToManipulate.transform.Rotate(Vector3.up, -(Mathf.PI * Time.deltaTime * rotSpeed));
+			rotateYaw( -rotSpeed );
 		}
 	}
 
@@ -153,7 +175,7 @@ public class GestureBuilderDetector : MonoBehaviour
 		/* rotate left */
 		if (! isInDeadzone ( lHExtensionFactor)) {
 				float rotSpeed = calculateRotationSpeed( lHExtensionFactor );
-				objectToManipulate.transform.Rotate (Vector3.up, Mathf.PI * Time.deltaTime * rotSpeed);
+				rotateYaw( rotSpeed );
 		}
 	}
 
