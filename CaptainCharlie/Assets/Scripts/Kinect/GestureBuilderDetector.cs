@@ -25,6 +25,18 @@ public class GestureBuilderDetector : MonoBehaviour
 		HandExtensionGestureUpdate ();
 	}
 
+	void HandGrabGestureUpdate() {
+		KinectController kinect = Kinect.GetComponent<KinectController>();
+		bool grabLeft = kinect.PlayerSkeleton.HandLeftState == HandState.Closed;
+		bool grabRight = kinect.PlayerSkeleton.HandRightState == HandState.Closed
+		
+		/* where are all the joints? */
+		Vector3 rHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandRight);
+		Vector3 lHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandLeft);
+
+		/* TODO: take the hand position relative to closed hand position */
+	}
+
 	/* this uses the distance from the torso to determine the factor of rotation */
 	void HandExtensionGestureUpdate() {
 		KinectController kinect = Kinect.GetComponent<KinectController>();
