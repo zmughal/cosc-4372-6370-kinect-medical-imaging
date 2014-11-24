@@ -27,15 +27,19 @@ public class GestureBuilderDetector : MonoBehaviour
 
 	private Vector3 rightHandAnchor;
 	private Vector3 leftHandAnchor;
+	private Vector3 objectAnchor;
+	private Quaternion objectAngleAnchor;
+	private float zoomLevel = 0.25f;
 
-	private enum ActionState { NONE, ZOOM, TRANSLATE, ROTATE };
+	private enum ActionState { NONE, ZOOM_POS, TRANSLATE_POS, ROTATE_POS,
+		                         ZOOM_VEC, TRANSLATE_VEC, ROTATE_VEC };
 
 	ActionState currentHandState;
 	ActionState lastHandState;
 
 	float actionSwitchDelay;
 	bool actionSwitch = true;
-	float actionSwitchDelayMax = 1f;
+	float actionSwitchDelayMax = 0.1f;
 
 	// Update is called once per frame
 	void Update () {
@@ -45,26 +49,44 @@ public class GestureBuilderDetector : MonoBehaviour
 
 	void HandGrabGestureUpdate() {
 		KinectController kinect = Kinect.GetComponent<KinectController>();
-		bool grabLeft = kinect.PlayerSkeleton.HandLeftState == HandState.Closed;
-		bool grabRight = kinect.PlayerSkeleton.HandRightState == HandState.Closed;
-		
-		Vector3 rHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandRight);
-		Vector3 lHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandLeft);
+		Body skel = kinect.PlayerSkeleton;
+		bool grabLeft = skel.HandLeftState == HandState.Closed
+			|| skel.HandLeftState == HandState.Lasso;
+		bool grabRight = skel.HandRightState == HandState.Closed
+			|| skel.HandRightState == HandState.Lasso;
+		bool velocityMode = skel.HandLeftState == HandState.Lasso
+				|| skel.HandRightState == HandState.Lasso;
+
+		Vector3 rHPosition = skel.GetPosition(JointType.HandRight);
+		Vector3 lHPosition = skel.GetPosition(JointType.HandLeft);
 		
 		UpdateHandOffsetVectors();
+
+		leftDebugString.text = skel.HandLeftState.ToString();
+		rightDebugString.text = skel.HandRightState.ToString();
 
 		if (actionSwitch) {
 			actionSwitch = false;
 			actionSwitchDelay = actionSwitchDelayMax;
 			if (grabLeft && grabRight) {
 					/* both hands closed = zoom */
-					currentHandState = ActionState.ZOOM;
+				/* TODO vec */
+					currentHandState = ActionState.ZOOM_POS;
 			} else if (grabLeft) {
 					/* left hand closed only = rotate */
-					currentHandState = ActionState.ROTATE;
+					if( velocityMode ) {
+						currentHandState = ActionState.ROTATE_VEC;
+					} else {
+						currentHandState = ActionState.ROTATE_POS;
+					}
+
 			} else if (grabRight) {
 					/* right hand closed only = translate */
-					currentHandState = ActionState.TRANSLATE;
+					if( velocityMode ) {
+						currentHandState = ActionState.TRANSLATE_VEC;
+					} else {
+						currentHandState = ActionState.TRANSLATE_POS;
+					}
 			} else {
 					currentHandState = ActionState.NONE;
 			}
@@ -83,9 +105,11 @@ public class GestureBuilderDetector : MonoBehaviour
 			/* mark initial position */
 			rightHandAnchor = rHPosition;
 			leftHandAnchor = lHPosition;
+			objectAnchor = objectToManipulate.transform.position;
+			objectAngleAnchor = objectToManipulate.transform.rotation;
 		}
 
-		if (currentHandState == ActionState.ZOOM) {
+		if (currentHandState == ActionState.ZOOM_POS) {
 				Vector3 interanchor = rightHandAnchor - leftHandAnchor;
 				float interanchorDistance = interanchor.magnitude;
 
@@ -95,20 +119,56 @@ public class GestureBuilderDetector : MonoBehaviour
 				float zoomFactor = currentInterHandDistance / interanchorDistance;
 
 				/* TODO make max red */
-				actionStateString.text = "ZOOMING!";
+				actionStateString.text = "ZOOMING!" + (velocityMode ? "(with VELOCITY!!!)" : "");
 
 				/* TODO Do the zoom */
-		} else if (currentHandState == ActionState.TRANSLATE) {
+		} else if (currentHandState == ActionState.TRANSLATE_POS) {
 				/* TODO make max blue */ 
-				actionStateString.text = "TRANSLATING!";
+				actionStateString.text = "TRANSLATING!" + (velocityMode ? "(with VELOCITY!!!)" : "");
 				Vector3 translateDirection = rHPosition - rightHandAnchor;
 				translateDirection.z = 0;
-				objectToManipulate.transform.Translate( translateDirection );
-		} else if (currentHandState == ActionState.ROTATE) {
+				objectToManipulate.transform.position = /*Time.deltaTime */ (objectAnchor + translateDirection / zoomLevel);
+		} else if (currentHandState == ActionState.TRANSLATE_VEC) {
+				/* TODO make max blue */ 
+				actionStateString.text = "TRANSLATING!" + (velocityMode ? "(with VELOCITY!!!)" : "");
+				Vector3 translateDirection = rHPosition - rightHandAnchor;
+				translateDirection.z = 0;
+				objectToManipulate.transform.Translate( /* Time.deltaTime */ translateDirection , Space.World);
+		} else if (currentHandState == ActionState.ROTATE_POS) {
 				/* TODO make max green */
-				actionStateString.text = "ROTATING!";
+				Vector3 rotateDirection = lHPosition - leftHandAnchor;
+
+				float x = -rotateDirection.y; /* yes, this is what I mean... */
+				float y = rotateDirection.x; /* swapping x and y */
+
+				rotateDirection.x = x;
+				rotateDirection.y = y;
+				rotateDirection.z = 0;
+
+				rotateDirection *= 40/zoomLevel;
+
+				actionStateString.text = "ROTATING! " + ( rotateDirection.ToString() )  + " "  + (velocityMode ? "(with VELOCITY!!!)" : "");
+
+				objectToManipulate.transform.rotation = Quaternion.Euler( /*Time.deltaTime */ ( objectAngleAnchor.eulerAngles + rotateDirection ) );
+				//objectToManipulate.transform.Rotate( rotateDirection );
+		} else if (currentHandState == ActionState.ROTATE_VEC) {
+			/* TODO make max green */
+			Vector3 rotateDirection = lHPosition - leftHandAnchor;
+			
+			float x = -rotateDirection.y; /* yes, this is what I mean... */
+			float y = rotateDirection.x; /* swapping x and y */
+			
+			rotateDirection.x = x;
+			rotateDirection.y = y;
+			rotateDirection.z = 0;
+			
+			rotateDirection *= 1/zoomLevel;
+			
+			actionStateString.text = "ROTATING! " + ( rotateDirection.ToString() )  + " "  + (velocityMode ? "(with VELOCITY!!!)" : "");
+			
+			objectToManipulate.transform.Rotate( /*Time.deltaTime */ rotateDirection );
 		} else {
-				actionStateString.text = "NOTHING!";
+				actionStateString.text = "NOTHING!" + (velocityMode ? "(with VELOCITY!!!)" : "");
 		}
 
 		lastHandState = currentHandState;
@@ -117,8 +177,9 @@ public class GestureBuilderDetector : MonoBehaviour
 	void UpdateHandOffsetVectors () {
 		KinectController kinect = Kinect.GetComponent<KinectController>();
 		
-		Vector3 rHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandRight);
-		Vector3 lHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandLeft);
+		Body skel = kinect.PlayerSkeleton;
+		Vector3 rHPosition = skel.GetPosition(JointType.HandRight);
+		Vector3 lHPosition = skel.GetPosition(JointType.HandLeft);
 
 		// Which direction has the joint moved since the last time?
 		Vector3 rHDelta = rHPosition - lastRHCoordinate;
@@ -138,9 +199,10 @@ public class GestureBuilderDetector : MonoBehaviour
 		KinectController kinect = Kinect.GetComponent<KinectController>();
 
 		/* where are all the joints? */
-		Vector3 rHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandRight);
-		Vector3 lHPosition = kinect.PlayerSkeleton.GetPosition(JointType.HandLeft);
-		Vector3 neckPosition = kinect.PlayerSkeleton.GetPosition(JointType.Neck);
+		Body skel = kinect.PlayerSkeleton;
+		Vector3 rHPosition = skel.GetPosition(JointType.HandRight);
+		Vector3 lHPosition = skel.GetPosition(JointType.HandLeft);
+		Vector3 neckPosition = skel.GetPosition(JointType.Neck);
 
 		/* how far are the joints from the body center (use neck x position as an approximation)? */
 		float rHOffsetFromBody = rHPosition.x - neckPosition.x;
@@ -241,7 +303,7 @@ public class GestureBuilderDetector : MonoBehaviour
 
 	void rightHandMovingRight() {
 		/* rotate right */
-		if( currentHandState == ActionState.TRANSLATE ) {
+		if( currentHandState == ActionState.TRANSLATE_POS ) {
 			/* TODO */
 		}
 	}
