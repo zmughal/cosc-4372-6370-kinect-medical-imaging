@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using Windows.Kinect;
 
@@ -11,7 +11,10 @@ public class GestureBuilderDetector : MonoBehaviour
 	public GUIText rightDebugString;
 
 	public GUIText actionStateString;
-	
+
+	ColorFrameReader colorFrameReader;
+	public GUITexture rgbTexture;
+
 	public Vector3 lastRHCoordinate;
 	public Vector3 lastLHCoordinate;
 
@@ -31,6 +34,8 @@ public class GestureBuilderDetector : MonoBehaviour
 	private Quaternion objectAngleAnchor;
 	private float zoomLevel = 0.25f;
 
+	public float rotationSpeedFactor = 40.0f;
+
 	private enum ActionState { NONE, ZOOM_POS, TRANSLATE_POS, ROTATE_POS,
 		                         ZOOM_VEC, TRANSLATE_VEC, ROTATE_VEC };
 
@@ -41,10 +46,21 @@ public class GestureBuilderDetector : MonoBehaviour
 	bool actionSwitch = true;
 	float actionSwitchDelayMax = 0.1f;
 
+	GestureBuilderDetector() {
+		KinectSensor sensor = KinectSensor.GetDefault ();
+		colorFrameReader = sensor.ColorFrameSource.OpenReader();
+	}
+
 	// Update is called once per frame
 	void Update () {
 		//HandExtensionGestureUpdate ();
+		RGBTextureUpdate ();
 		HandGrabGestureUpdate ();
+	}
+
+	void RGBTextureUpdate() {
+//		Kinect.
+//		GUI.DrawTexture(new Rect(600, 50, IM_W / 2, IM_H / 2), rgbTexture, ScaleMode.ScaleToFit, false);
 	}
 
 	void HandGrabGestureUpdate() {
@@ -145,7 +161,7 @@ public class GestureBuilderDetector : MonoBehaviour
 				rotateDirection.y = y;
 				rotateDirection.z = 0;
 
-				rotateDirection *= 40/zoomLevel;
+				rotateDirection *= rotationSpeedFactor * 1/zoomLevel;
 
 				actionStateString.text = "ROTATING! " + ( rotateDirection.ToString() )  + " "  + (velocityMode ? "(with VELOCITY!!!)" : "");
 
@@ -162,7 +178,7 @@ public class GestureBuilderDetector : MonoBehaviour
 			rotateDirection.y = y;
 			rotateDirection.z = 0;
 			
-			rotateDirection *= 1/zoomLevel;
+			rotateDirection *= rotationSpeedFactor/4.0f * 1/zoomLevel;
 			
 			actionStateString.text = "ROTATING! " + ( rotateDirection.ToString() )  + " "  + (velocityMode ? "(with VELOCITY!!!)" : "");
 			
