@@ -1,6 +1,7 @@
 # Hands-free manipulation of medical images using a depth camera
 
 - Course: Fundamentals of Medical Imaging, Fall 2014
+- University of Houston
 - Instructor: Dr. Nikolaos V. Tsekos
 
 ## Abstract
@@ -18,7 +19,7 @@ interface for manipulating medical images in 3D.
 ## Team
 
 - Daniel Semac
-- Muhammad Majid Naviwala
+- Muhammad Naviwala
 - Zakariyya Mughal
 - Rodolfo Ramirez
 
