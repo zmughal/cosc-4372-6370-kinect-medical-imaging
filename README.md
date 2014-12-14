@@ -1,4 +1,4 @@
-# Hands-free manipulation of medical images using a depth-field camera
+# Hands-free manipulation of medical images using a depth camera
 
 - Course: Fundamentals of Medical Imaging, Fall 2014
 - Instructor: Dr. Nikolaos V. Tsekos
