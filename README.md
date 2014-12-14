@@ -13,3 +13,10 @@
 - Muhammad Majid Naviwala
 - Zakariyya Mughal
 - Rodolfo Ramirez
+
+## Acknowledgements
+
+We would like to thank Paul DeCarlo (Microsoft) and Dr. Chang Yun (UHCS) for
+access to the Kinect 2 hardware; Mohammed Alshair and Patipol Paripoonnanonda
+for help with using KInect in Unity3D; and Unity Technologies for giving us a
+Unity Pro license for the semester.
